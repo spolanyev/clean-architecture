@@ -2,11 +2,12 @@
 
 use crate::frameworks_and_drivers::interfaces::dispatcher_interface::DispatcherInterface;
 use crate::frameworks_and_drivers::interfaces::front_controller_interface::FrontControllerInterface;
-use crate::frameworks_and_drivers::interfaces::http_request::HttpRequestInterface;
+use crate::frameworks_and_drivers::interfaces::http_request_interface::HttpRequestInterface;
+use crate::frameworks_and_drivers::interfaces::http_response_interface::HttpResponseInterface;
 use crate::frameworks_and_drivers::interfaces::route_interface::RouteInterface;
 use crate::frameworks_and_drivers::interfaces::router_interface::RouterInterface;
 
-struct FrontController {
+pub struct FrontController {
     dispatcher: Box<dyn DispatcherInterface>,
     router: Box<dyn RouterInterface>,
 }
@@ -22,26 +23,28 @@ impl FrontControllerInterface for FrontController {
     type Route = Box<dyn RouteInterface>;
     type Router = Box<dyn RouterInterface>;
     type Dispatcher = Box<dyn DispatcherInterface>;
+    type Response = Box<dyn HttpResponseInterface>;
 
-    fn delegate(&self, request: Self::Request) {
-        self.dispatcher.dispatch(&self.router, request);
+    fn delegate(&self, mut request: Self::Request) -> Self::Response {
+        self.dispatcher.dispatch(&self.router, &mut request)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::frameworks_and_drivers::dispatcher::Dispatcher;
-    use crate::frameworks_and_drivers::http_method::HttpMethod;
-    use crate::frameworks_and_drivers::http_request::HttpRequest;
-    use crate::frameworks_and_drivers::route::Route;
-    use crate::frameworks_and_drivers::router::Router;
+    use crate::frameworks_and_drivers::message::dispatcher::Dispatcher;
+    use crate::frameworks_and_drivers::message::http_method::HttpMethod;
+    use crate::frameworks_and_drivers::message::http_request::HttpRequest;
+    use crate::frameworks_and_drivers::message::route::Route;
+    use crate::frameworks_and_drivers::message::router::Router;
 
     #[test]
     fn find_word() {
-        let request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
+        let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Get,
             "/words/ability".to_owned(),
+            Some("ability".to_owned()),
         ));
 
         let route = Box::new(Route::new(
@@ -51,14 +54,16 @@ mod tests {
         ));
 
         let mut router = Box::new(Router::new());
+
         router.add_route(route);
 
         let dispatcher = Box::new(Dispatcher::new());
 
-        let controller = FrontController::new(dispatcher, router);
+        let front_controller = FrontController::new(dispatcher, router);
 
-        let nothing = controller.delegate(request);
+        let http_response = front_controller.delegate(http_request);
 
-        assert_eq!((), nothing);
+        //TODO
+        assert_eq!((), ());
     }
 }
