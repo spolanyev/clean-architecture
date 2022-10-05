@@ -49,7 +49,7 @@ mod tests {
 
         let route = Box::new(Route::new(
             HttpMethod::Get,
-            "/words/ability".to_owned(),
+            "/words/*".to_owned(),
             "find_word".to_owned(),
         ));
 
@@ -61,7 +61,7 @@ mod tests {
 
         let front_controller = FrontController::new(dispatcher, router);
 
-        let http_response = front_controller.delegate(http_request);
+        let _http_response = front_controller.delegate(http_request);
 
         //TODO
         assert_eq!((), ());
