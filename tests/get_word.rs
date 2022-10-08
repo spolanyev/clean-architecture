@@ -24,10 +24,19 @@ fn get() {
         let not_found = String::from_utf8(curl_output.stdout.as_slice().to_owned())
             .expect("Failed to convert to String");
 
+        let curl_output = Command::new("curl")
+            .arg("-I")
+            .arg("http://localhost/words/ability")
+            .output()
+            .expect("Failed to execute command");
+        let bad_request = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+            .expect("Failed to convert to String");
+
         child.kill().expect("Failed to stop cargo");
 
         assert!(found.starts_with("Word \"ability\" is found"));
         assert!(not_found.starts_with("Word \"qazxsw\" is not found"));
+        assert!(bad_request.starts_with("HTTP/1.1 400 Bad Request"));
     } else {
         assert!(false);
     }
