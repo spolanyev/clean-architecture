@@ -49,7 +49,7 @@ mod tests {
         let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Get,
             "/words/ability".to_owned(),
-            Some("ability".to_owned()),
+            None,
         ));
 
         let route = Box::new(Route::new(HttpMethod::Get, "/words/*", "find_word"));
@@ -73,7 +73,7 @@ mod tests {
         let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Get,
             "/words/qazxsw".to_owned(),
-            Some("ability".to_owned()),
+            None,
         ));
 
         let http_response = front_controller.delegate(http_request);
@@ -81,5 +81,29 @@ mod tests {
         assert!(http_response
             .view_response()
             .contains("Word \"qazxsw\" is not found"));
+    }
+
+    #[test]
+    fn view_all() {
+        let http_request: Box<dyn HttpRequestInterface> =
+            Box::new(HttpRequest::new(HttpMethod::Get, "/words".to_owned(), None));
+
+        let route = Box::new(Route::new(HttpMethod::Get, "/words", "view_all"));
+
+        let mut router: Box<dyn RouterInterface> = Box::new(Router::new());
+
+        router.add_route(route);
+
+        let factory: Box<dyn FactoryInterface> = Box::new(Factory::new());
+
+        let dispatcher: Box<dyn DispatcherInterface> = Box::new(Dispatcher::new(&factory));
+
+        let front_controller = FrontController::new(&dispatcher, router);
+
+        let http_response = front_controller.delegate(http_request);
+
+        assert!(["ability", "able", "a"]
+            .iter()
+            .all(|&word| http_response.view_response().contains(word)));
     }
 }

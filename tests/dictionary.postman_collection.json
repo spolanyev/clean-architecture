@@ -61,6 +61,34 @@
 			"response": []
 		},
 		{
+			"name": "/ list all and get 200",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "127.0.0.1:80/words",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "80",
+					"path": [
+						"words"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "/ list 1 and get 200 - 2",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
