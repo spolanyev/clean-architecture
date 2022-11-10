@@ -9,3 +9,5 @@ It is supposed to be a web API implemented with the standard library (deliberate
 ![all items screen](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/all-items.png?raw=true)
 
 ![api in browser](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/api-in-browser.png?raw=true)
+
+![tests](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/tests.png?raw=true)
