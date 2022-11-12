@@ -1,0 +1,69 @@
+openapi: 3.1.0
+info:
+  title: Dictionary API
+  version: 0.0.1
+  description: <b>A clean architecture OOP TDD Rust API project &#x1F609;</b>
+servers:
+  - url: http://127.0.0.1
+    description: Local host
+paths:
+  /words:
+    get:
+      tags:
+        - Available English words
+      summary: See list of all english words available for translation
+      description: "Currently there are only 3 test words: a, able, ability"
+      operationId: AllWords
+      responses:
+        '200':
+          description: Successful response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  a
+                  able
+                  ability
+                  \u{1F60E}
+        '404':
+          description: Not found response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Words not exist yet \u{1F622}
+  /words/{word}:
+    get:
+      tags:
+        - English word translation
+      summary: "Get translation of an english word"
+      description: "Currently 3 test words exist: a, able, ability"
+      operationId: WordTranslation
+      responses:
+        '200':
+          description: Successful response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Word "ability" is found \u{1F60E}
+        '404':
+          description: Not found response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Word "qazxsw" is not found \u{1F622}
+      parameters:
+        - name: word
+          in: path
+          required: true
+          description: An English word to translate
+          schema:
+                type: string
+tags:
+  - name: English word translation
+    description: Translate a word
+  - name: Available English words
+    description: Get a list of all the words

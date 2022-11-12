@@ -11,3 +11,5 @@ It is supposed to be a web API implemented with the standard library (deliberate
 ![api in browser](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/api-in-browser.png?raw=true)
 
 ![tests](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/tests.png?raw=true)
+
+![open api](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/open-api.png?raw=true)
