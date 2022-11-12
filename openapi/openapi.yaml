@@ -5,7 +5,7 @@ info:
   description: <b>A clean architecture OOP TDD Rust API project &#x1F609;</b>
 servers:
   - url: http://127.0.0.1
-    description: Local host
+    description: Localhost
 paths:
   /words:
     get:
