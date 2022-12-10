@@ -19,36 +19,32 @@ use std::net::TcpListener;
 use std::thread;
 
 fn main() {
+    let mut routes = vec![
+        Route::new(HttpMethod::Get, "/words/*", "find_word"),
+        Route::new(HttpMethod::Get, "/words", "view_all"),
+    ];
+
+    let mut router: Box<dyn RouterInterface> = Box::new(Router::new());
+
+    while let Some(route) = routes.pop() {
+        router.add_route(Box::new(route));
+    }
+
+    let factory: Box<dyn FactoryInterface> = Box::new(Factory::new());
+
+    let dispatcher: Box<dyn DispatcherInterface> = Box::new(Dispatcher::new(&factory));
+
+    let front_controller = FrontController::new(&dispatcher, router);
+
     let listener = TcpListener::bind("127.0.0.1:80").expect("Failed to bind TcpListener");
     for tcp_stream in listener.incoming() {
         let mut tcp_stream = tcp_stream.expect("Failed to unwrap tcp");
         thread::scope(|scope| {
             scope.spawn(|| {
                 let http_request = HttpRequest::from_tcp_stream(&mut tcp_stream);
-
                 if let Some(http_request) = http_request {
                     let http_request: Box<dyn HttpRequestInterface> = Box::new(http_request);
-
-                    let mut routes = vec![
-                        Route::new(HttpMethod::Get, "/words/*", "find_word"),
-                        Route::new(HttpMethod::Get, "/words", "view_all"),
-                    ];
-
-                    let mut router: Box<dyn RouterInterface> = Box::new(Router::new());
-
-                    while let Some(route) = routes.pop() {
-                        router.add_route(Box::new(route));
-                    }
-
-                    let factory: Box<dyn FactoryInterface> = Box::new(Factory::new());
-
-                    let dispatcher: Box<dyn DispatcherInterface> =
-                        Box::new(Dispatcher::new(&factory));
-
-                    let front_controller = FrontController::new(&dispatcher, router);
-
                     let http_response = front_controller.delegate(http_request);
-
                     http_response.respond(tcp_stream);
                 } else {
                     let mut http_response = HttpResponse::new();
