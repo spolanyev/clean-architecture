@@ -129,7 +129,7 @@ mod tests {
 
         let http_response = front_controller.delegate(http_request);
 
-        assert!(["ability", "able", "a"]
+        assert!(["a", "ability", "able"]
             .iter()
             .all(|&word| http_response.view_response().contains(word)));
 

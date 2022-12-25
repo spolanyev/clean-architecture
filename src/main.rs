@@ -28,6 +28,7 @@ fn main() {
         let mut routes = vec![
             Route::new(HttpMethod::Get, "/words/*", "find_word"),
             Route::new(HttpMethod::Get, "/words", "view_all"),
+            Route::new(HttpMethod::Post, "/words", "add_word"),
         ];
 
         let mut router = Box::new(Router::new());

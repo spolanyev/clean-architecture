@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Dictionary API
-  version: 0.0.1
+  version: 0.0.2
   description: <b>A clean architecture OOP TDD Rust API project &#x1F609;</b>
 servers:
   - url: http://127.0.0.1
@@ -11,8 +11,8 @@ paths:
     get:
       tags:
         - Available English words
-      summary: See list of all english words available for translation
-      description: "Currently there are only 3 test words: a, able, ability"
+      summary: See list of all the english words available for translation
+      description: "Currently there are only 3 test words: a, ability, able"
       operationId: AllWords
       responses:
         '200':
@@ -33,12 +33,44 @@ paths:
               schema:
                 type: string
                 example: Words not exist yet \u{1F622}
+    post:
+      tags:
+        - A new English word
+      summary: Add a new word
+      requestBody:
+        description: Field values are separated with new line
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              example: |
+                newword
+                3000
+                новое слово
+      description: "Currently words are put in memory only"
+      operationId: AddWord
+      responses:
+        '201':
+          description: Created response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Word \"newword\" is added \u{1F60E}
+        '400':
+          description: Bad request response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request \u{1F622}
   /words/{word}:
     get:
       tags:
         - English word translation
       summary: "Get translation of an english word"
-      description: "Currently 3 test words exist: a, able, ability"
+      description: "Currently 3 test words exist: a, ability, able"
       operationId: WordTranslation
       responses:
         '200':
@@ -67,3 +99,5 @@ tags:
     description: Translate a word
   - name: Available English words
     description: Get a list of all the words
+  - name: A new English word
+    description: Add a new English word
