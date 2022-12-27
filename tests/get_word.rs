@@ -11,14 +11,14 @@ fn get() {
         thread::sleep(Duration::from_secs(1)); //time to start server
 
         let curl_output = Command::new("curl")
-            .arg("http://localhost/words/ability")
+            .arg("http://localhost/words/testworda")
             .output()
             .expect("Failed to execute command");
         let found = String::from_utf8(curl_output.stdout.as_slice().to_owned())
             .expect("Failed to convert to String");
 
         let curl_output = Command::new("curl")
-            .arg("http://localhost/words/qazxsw")
+            .arg("http://localhost/words/notexistant")
             .output()
             .expect("Failed to execute command");
         let not_found = String::from_utf8(curl_output.stdout.as_slice().to_owned())
@@ -26,7 +26,7 @@ fn get() {
 
         let curl_output = Command::new("curl")
             .arg("-I")
-            .arg("http://localhost/words/ability")
+            .arg("http://localhost/words/testworda")
             .output()
             .expect("Failed to execute command");
         let bad_request = String::from_utf8(curl_output.stdout.as_slice().to_owned())
@@ -34,8 +34,8 @@ fn get() {
 
         child.kill().expect("Failed to stop cargo");
 
-        assert!(found.starts_with("ability\n1000\nспособность"));
-        assert!(not_found.starts_with("Word \"qazxsw\" is not found"));
+        assert!(found.starts_with("testworda\n1000\nлебедь"));
+        assert!(not_found.starts_with("Word \"notexistant\" is not found"));
         assert!(bad_request.starts_with("HTTP/1.1 400 Bad Request"));
     } else {
         assert!(false);

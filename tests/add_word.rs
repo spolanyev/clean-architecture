@@ -27,7 +27,7 @@ fn add_update_delete() {
                 "-H",
                 "Content-Type: text/plain",
                 "--data-binary",
-                "newword\n3000\nновое слово\n",
+                "newword\n5000\nновое слово\n",
             ])
             .output()
             .expect("Failed to execute command");
@@ -43,7 +43,7 @@ fn add_update_delete() {
                 "-H",
                 "Content-Type: text/plain",
                 "--data-binary",
-                "newword\n3000\nновое слово\n",
+                "newword\n5000\nновое слово\n",
             ])
             .output()
             .expect("Failed to execute command");
@@ -60,7 +60,7 @@ fn add_update_delete() {
                 "-H",
                 "Content-Type: text/plain",
                 "--data-binary",
-                "newword\n5000\nновоеслово\n",
+                "newword\n7000\nновоеслово\n",
             ])
             .output()
             .expect("Failed to execute command");
@@ -75,9 +75,21 @@ fn add_update_delete() {
         let page_check_updated = String::from_utf8(curl_output.stdout.as_slice().to_owned())
             .expect("Failed to convert to String");
 
-        //TODO delete word
+        //delete word
+        let curl_output = Command::new("curl")
+            .args(&["-X", "DELETE", "http://localhost/words/newword", "-i"])
+            .output()
+            .expect("Failed to execute command");
+        let page_delete = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+            .expect("Failed to convert to String");
 
-        //TODO check if word exists
+        //check if word exists
+        let curl_output = Command::new("curl")
+            .arg("http://localhost/words/newword")
+            .output()
+            .expect("Failed to execute command");
+        let page_check_deleted = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+            .expect("Failed to convert to String");
 
         child.kill().expect("Failed to stop cargo");
 
@@ -88,7 +100,12 @@ fn add_update_delete() {
             page_add_existing
         );
         assert!(page_update.starts_with("HTTP/1.1 204 No Content"));
-        assert!(page_check_updated.starts_with("newword\n5000"));
+        assert!(page_check_updated.starts_with("newword\n7000"));
+        assert!(page_delete.starts_with("HTTP/1.1 204 No Content"));
+        assert_eq!(
+            "Word \"newword\" is not found \u{1F622}",
+            page_check_deleted
+        );
     } else {
         assert!(false);
     }

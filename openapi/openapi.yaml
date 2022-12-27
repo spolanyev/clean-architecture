@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Dictionary API
-  version: 0.0.3
+  version: 0.0.4
   description: <b>A clean architecture OOP TDD Rust API project &#x1F609;</b>
 servers:
   - url: http://127.0.0.1
@@ -10,9 +10,9 @@ paths:
   /words:
     get:
       tags:
-        - Available English words
+        - English words
       summary: See a list of all available English words
-      description: "Currently, only 3 test words exist: a, ability, able."
+      description: "Currently, only 3 test words exist: testworda, testwordb, testworc."
       operationId: AllWords
       responses:
         '200':
@@ -22,21 +22,20 @@ paths:
               schema:
                 type: string
                 example: |
-                  a
-                  ability
-                  able
-                  \u{1F60E}
+                  testworda
+                  testwordb
+                  testwordc \u{1F60E}
         '404':
           description: No words found.
           content:
             text/plain:
               schema:
                 type: string
-                example: Words not exist yet \u{1F622}
+                example: No words yet \u{1F622}
     post:
       tags:
         - A new word
-      summary: Add a new word
+      summary: Add a word
       requestBody:
         description: Field values are separated with new line.
         required: true
@@ -46,8 +45,9 @@ paths:
               type: string
               example: |
                 newword
-                3000
+                5000
                 новое слово
+
       description: Currently, words are put in memory only.
       operationId: AddWord
       responses:
@@ -77,9 +77,10 @@ paths:
             schema:
               type: string
               example: |
-                updatedword
-                5000
+                newword
+                7000
                 новоеслово
+
       description: Currently, words are put in memory only.
       operationId: UpdateWord
       responses:
@@ -91,14 +92,14 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: Word \"theword\" is not found \u{1F622}
+                example: Word \"notexistant\" is not found \u{1F622}
   /words/{word}:
     get:
       tags:
-        - English word translation
+        - An English word
       summary: Get a translation of an English word
-      description: "Currently, only 3 test words exist: a, ability, able."
-      operationId: WordTranslation
+      description: "Currently, only 3 test words exist: testworda, testwordb, testworc."
+      operationId: GetWord
       responses:
         '200':
           description: The word.
@@ -107,16 +108,16 @@ paths:
               schema:
                 type: string
                 example: |
-                  ability
+                  testworda
                   1000
-                  способность \u{1F60E}
+                  лебедь \u{1F60E}
         '404':
           description: The word is not found.
           content:
             text/plain:
               schema:
                 type: string
-                example: Word "qazxsw" is not found \u{1F622}
+                example: Word "notexistant" is not found \u{1F622}
       parameters:
         - name: word
           in: path
@@ -124,12 +125,37 @@ paths:
           description: An English word to translate.
           schema:
             type: string
+    delete:
+      tags:
+        - A deleted word
+      summary: Delete a word
+      description: "Currently, only 3 test words exist: testworda, testwordb, testworc."
+      operationId: DeleteWord
+      responses:
+        '204':
+          description: The word was deleted successfully.
+        '404':
+          description: The word is not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Word "notexistant" is not found \u{1F622}
+      parameters:
+        - name: word
+          in: path
+          required: true
+          description: An English word to delete.
+          schema:
+            type: string
 tags:
-  - name: English word translation
+  - name: An English word
     description: Translate a word
-  - name: Available English words
+  - name: English words
     description: Get a list of all words
   - name: A new word
-    description: Add a new English word
+    description: Add an English word
   - name: An updated word
     description: Update an English word
+  - name: A deleted word
+    description: Delete an English word

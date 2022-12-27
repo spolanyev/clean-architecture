@@ -30,6 +30,7 @@ fn main() {
             Route::new(HttpMethod::Get, "/words", "view_all"),
             Route::new(HttpMethod::Post, "/words", "add_word"),
             Route::new(HttpMethod::Put, "/words", "update_word"),
+            Route::new(HttpMethod::Delete, "/words/*", "delete_word"),
         ];
 
         let mut router = Box::new(Router::new());

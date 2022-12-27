@@ -79,7 +79,7 @@ mod tests {
         //find existing word
         let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Get,
-            "/words/ability".to_owned(),
+            "/words/testworda".to_owned(),
             None,
         ));
 
@@ -87,12 +87,12 @@ mod tests {
 
         assert!(http_response
             .view_response()
-            .contains("ability\n1000\nспособность"));
+            .contains("testworda\n1000\nлебедь"));
 
         //find non-existing word
         let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Get,
-            "/words/qazxsw".to_owned(),
+            "/words/notexistant".to_owned(),
             None,
         ));
 
@@ -100,7 +100,7 @@ mod tests {
 
         assert!(http_response
             .view_response()
-            .contains("Word \"qazxsw\" is not found"));
+            .contains("Word \"notexistant\" is not found"));
     }
 
     #[test]
@@ -124,18 +124,19 @@ mod tests {
 
         let http_response = front_controller.delegate(http_request);
 
-        assert!(["a", "ability", "able"]
+        assert!(["testworda", "testwordb", "testwordc"]
             .iter()
             .all(|&word| http_response.view_response().contains(word)));
     }
 
     #[test]
-    fn add_word_and_update() {
+    fn add_word_then_update_then_delete() {
         let router: Box<dyn RouterInterface> = {
             let mut routes = vec![
                 Route::new(HttpMethod::Get, "/words/*", "find_word"),
                 Route::new(HttpMethod::Post, "/words", "add_word"),
                 Route::new(HttpMethod::Put, "/words", "update_word"),
+                Route::new(HttpMethod::Delete, "/words/*", "delete_word"),
             ];
 
             let mut router = Box::new(Router::new());
@@ -153,7 +154,7 @@ mod tests {
 
         let mut front_controller = FrontController::new(dispatcher, router, word_unit);
 
-        //get non-existing word
+        //sure word not exists
         let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Get,
             "/words/newword".to_owned(),
@@ -166,24 +167,26 @@ mod tests {
             .view_response()
             .starts_with("HTTP/1.1 404 Not Found"));
 
-        //add non-existing word
+        //add word
         let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Post,
             "/words".to_owned(),
             Some(ApplicationRequest::Word((
                 "newword".to_owned(),
-                3000,
+                5000,
                 "новое слово".to_owned(),
             ))),
         ));
 
         let http_response = front_controller.delegate(http_request);
 
+        front_controller.commit_changes();
+
         assert!(http_response
             .view_response()
             .starts_with("HTTP/1.1 201 Created"));
 
-        //check new word
+        //check word added
         let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
             HttpMethod::Get,
             "/words/newword".to_owned(),
@@ -192,10 +195,66 @@ mod tests {
 
         let http_response = front_controller.delegate(http_request);
 
-        //assert_eq!("", http_response.view_response());
-
         assert!(http_response.view_response().starts_with("HTTP/1.1 200 OK"));
 
+        //update word
+        let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
+            HttpMethod::Put,
+            "/words".to_owned(),
+            Some(ApplicationRequest::Word((
+                "newword".to_owned(),
+                7000,
+                "новоеслово".to_owned(),
+            ))),
+        ));
+
+        let http_response = front_controller.delegate(http_request);
+
         front_controller.commit_changes();
+
+        assert!(http_response
+            .view_response()
+            .starts_with("HTTP/1.1 204 No Content"));
+
+        //check word updated
+        let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
+            HttpMethod::Get,
+            "/words/newword".to_owned(),
+            None,
+        ));
+
+        let http_response = front_controller.delegate(http_request);
+
+        assert!(http_response
+            .view_response()
+            .contains("newword\n7000\nновоеслово"));
+
+        //delete word
+        let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
+            HttpMethod::Delete,
+            "/words/newword".to_owned(),
+            None,
+        ));
+
+        let http_response = front_controller.delegate(http_request);
+
+        front_controller.commit_changes();
+
+        assert!(http_response
+            .view_response()
+            .starts_with("HTTP/1.1 204 No Content"));
+
+        //check word deleted
+        let http_request: Box<dyn HttpRequestInterface> = Box::new(HttpRequest::new(
+            HttpMethod::Get,
+            "/words/newword".to_owned(),
+            None,
+        ));
+
+        let http_response = front_controller.delegate(http_request);
+
+        assert!(http_response
+            .view_response()
+            .starts_with("HTTP/1.1 404 Not Found"));
     }
 }
