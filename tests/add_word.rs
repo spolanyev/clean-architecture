@@ -10,39 +10,85 @@ fn add_update_delete() {
     if let Ok(mut child) = cargo_run.arg("run").spawn() {
         thread::sleep(Duration::from_secs(1)); //time to start server
 
+        //sure not exist
         let curl_output = Command::new("curl")
-            .args(&[
-                "-X",
-                "POST",
-                "-H",
-                "Content-Type: text/plain",
-                "--data-binary",
-                "newword\n3000\nновое слово",
-                "http://localhost/words",
-            ])
+            .arg("http://localhost/words/newword")
             .output()
             .expect("Failed to execute command");
-        let found = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+        let page_not_exist = String::from_utf8(curl_output.stdout.as_slice().to_owned())
             .expect("Failed to convert to String");
-        assert_eq!("Word \"newword\" is added \u{1F60E}", found);
 
+        //add new word
         let curl_output = Command::new("curl")
             .args(&[
                 "-X",
                 "POST",
+                "http://localhost/words",
                 "-H",
                 "Content-Type: text/plain",
                 "--data-binary",
-                "newword\n3000\nновое слово",
-                "http://localhost/words",
+                "newword\n3000\nновое слово\n",
             ])
             .output()
             .expect("Failed to execute command");
-        let found = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+        let page_add_new = String::from_utf8(curl_output.stdout.as_slice().to_owned())
             .expect("Failed to convert to String");
-        assert_eq!("Word \"newword\" is already exist \u{1F60E}", found);
+
+        //add existing word
+        let curl_output = Command::new("curl")
+            .args(&[
+                "-X",
+                "POST",
+                "http://localhost/words",
+                "-H",
+                "Content-Type: text/plain",
+                "--data-binary",
+                "newword\n3000\nновое слово\n",
+            ])
+            .output()
+            .expect("Failed to execute command");
+        let page_add_existing = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+            .expect("Failed to convert to String");
+
+        //update word
+        let curl_output = Command::new("curl")
+            .args(&[
+                "-X",
+                "PUT",
+                "http://localhost/words",
+                "-i",
+                "-H",
+                "Content-Type: text/plain",
+                "--data-binary",
+                "newword\n5000\nновоеслово\n",
+            ])
+            .output()
+            .expect("Failed to execute command");
+        let page_update = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+            .expect("Failed to convert to String");
+
+        //check updated word
+        let curl_output = Command::new("curl")
+            .arg("http://localhost/words/newword")
+            .output()
+            .expect("Failed to execute command");
+        let page_check_updated = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+            .expect("Failed to convert to String");
+
+        //TODO delete word
+
+        //TODO check if word exists
 
         child.kill().expect("Failed to stop cargo");
+
+        assert_eq!("Word \"newword\" is not found \u{1F622}", page_not_exist);
+        assert_eq!("Word \"newword\" is added \u{1F60E}", page_add_new);
+        assert_eq!(
+            "Word \"newword\" is already exist \u{1F60E}",
+            page_add_existing
+        );
+        assert!(page_update.starts_with("HTTP/1.1 204 No Content"));
+        assert!(page_check_updated.starts_with("newword\n5000"));
     } else {
         assert!(false);
     }

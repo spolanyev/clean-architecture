@@ -34,7 +34,7 @@ fn get() {
 
         child.kill().expect("Failed to stop cargo");
 
-        assert!(found.starts_with("Word \"ability\" is found"));
+        assert!(found.starts_with("ability\n1000\nспособность"));
         assert!(not_found.starts_with("Word \"qazxsw\" is not found"));
         assert!(bad_request.starts_with("HTTP/1.1 400 Bad Request"));
     } else {
