@@ -1,8 +1,8 @@
 # About
 
-It is a public repo of my private Rust project done in OOP-paradigm with TDD according to Uncle Bob's interpretation of Clean Architecture. Here are just a few screens and rust files. The project is under construction.
+It is a public repository of my private Rust project done in the OOP-paradigm with TDD according to Uncle Bob's interpretation of Clean Architecture. Here are just a few screenshots and Rust files. The project is under construction.
 
-It is supposed to be a web API deliberately implemented without third-party crates, including a web server.
+It is supposed to be a web API deliberately implemented without using any third-party crates, including a web server.
 
 ### Hiring? Contact me at [spolanyev@gmail.com](mailto:spolanyev@gmail.com?subject=Rust%3A%20vacancy).
 
