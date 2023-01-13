@@ -4,8 +4,9 @@ It is a public repository of my private Rust project done in the OOP-paradigm wi
 
 It is supposed to be a web API deliberately implemented without using any third-party crates, including a web server.
 
-### Hiring? Contact me at [spolanyev@gmail.com](mailto:spolanyev@gmail.com?subject=Rust%3A%20vacancy).
-
+## Hiring? Contact me at [spolanyev@gmail.com](mailto:spolanyev@gmail.com?subject=Rust%20vacancy).
+  
+  
 ![readme screen](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/readme.png?raw=true)
 
 ![all items screen](https://github.com/spolanyev/rust-oop-tdd-clean-architecture-web-api/blob/main/all-items.png?raw=true)
