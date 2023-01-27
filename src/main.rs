@@ -41,25 +41,34 @@ fn main() {
     };
     let mut front_controller = FrontController::new(dispatcher, router, word_unit);
 
-    let listener = TcpListener::bind("127.0.0.1:80").expect("Failed to bind TcpListener");
-    for tcp_stream in listener.incoming() {
-        let mut tcp_stream = tcp_stream.expect("Failed to unwrap tcp");
-        thread::scope(|scope| {
-            scope.spawn(|| {
-                let http_request = HttpRequest::from_tcp_stream(&mut tcp_stream);
-                if let Some(http_request) = http_request {
-                    let http_request: Box<dyn HttpRequestInterface> = Box::new(http_request);
-                    let http_response = front_controller.delegate(http_request);
-                    front_controller.commit_changes();
-                    http_response.respond(tcp_stream);
-                } else {
-                    let mut http_response = HttpResponse::new();
-                    http_response.set_http_status(HttpStatus::BadRequest);
-                    http_response.set_content(HttpStatus::BadRequest.get_description());
-                    http_response.build();
-                    http_response.respond(tcp_stream);
-                }
-            });
-        });
+    let listener = TcpListener::bind("127.0.0.1:80").expect("Could not start server");
+    for stream in listener.incoming() {
+        match stream {
+            Ok(mut tcp_stream) => {
+                thread::scope(|scope| {
+                    let handle = scope.spawn(|| {
+                        let http_request = HttpRequest::from_tcp_stream(&mut tcp_stream);
+                        if let Some(http_request) = http_request {
+                            let http_request: Box<dyn HttpRequestInterface> =
+                                Box::new(http_request);
+                            let http_response = front_controller.delegate(http_request);
+                            front_controller.commit_changes();
+                            http_response.respond(tcp_stream);
+                        } else {
+                            let mut http_response = HttpResponse::new();
+                            http_response.set_http_status(HttpStatus::BadRequest);
+                            http_response.set_content(HttpStatus::BadRequest.get_description());
+                            http_response.build();
+                            http_response.respond(tcp_stream);
+                        }
+                    });
+
+                    if let Err(error) = handle.join() {
+                        println!("Thread panicked, error is `{:#?}`", error);
+                    }
+                });
+            }
+            Err(error) => println!("Connection failed, error is `{:#?}`", error),
+        }
     }
 }
