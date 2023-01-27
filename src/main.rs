@@ -18,6 +18,7 @@ use dictionary::frameworks_and_drivers::message::route::Route;
 use dictionary::frameworks_and_drivers::message::router::Router;
 use dictionary::interface_adapters::storage::word_unit::WordUnit;
 use std::net::TcpListener;
+use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
 fn main() {
@@ -42,10 +43,21 @@ fn main() {
     let mut front_controller = FrontController::new(dispatcher, router, word_unit);
 
     let listener = TcpListener::bind("127.0.0.1:80").expect("Could not start server");
+    let active_connections = Arc::new((Mutex::new(0), Condvar::new()));
+    let connection_limit = 100;
     for stream in listener.incoming() {
+        let active_connections = Arc::clone(&active_connections);
         match stream {
             Ok(mut tcp_stream) => {
                 thread::scope(|scope| {
+                    let (connections, semaphore) = &*active_connections;
+                    let mut connections = connections.lock().expect("Lock failed");
+
+                    while *connections >= connection_limit {
+                        connections = semaphore.wait(connections).expect("Wait failed");
+                    }
+                    *connections += 1;
+
                     let handle = scope.spawn(|| {
                         let http_request = HttpRequest::from_tcp_stream(&mut tcp_stream);
                         if let Some(http_request) = http_request {
@@ -66,6 +78,9 @@ fn main() {
                     if let Err(error) = handle.join() {
                         println!("Thread panicked, error is `{:#?}`", error);
                     }
+
+                    *connections -= 1;
+                    semaphore.notify_one();
                 });
             }
             Err(error) => println!("Connection failed, error is `{:#?}`", error),
