@@ -67,6 +67,16 @@ fn add_update_delete() {
         let page_update = String::from_utf8(curl_output.stdout.as_slice().to_owned())
             .expect("Failed to convert to String");
 
+        /*TODO uncomment after persistence layer added
+        //get all words to check later if a new word is not rewritten by them
+        let curl_output = Command::new("curl")
+            .arg("http://localhost/words")
+            .output()
+            .expect("Failed to execute command");
+        let page_all_words = String::from_utf8(curl_output.stdout.as_slice().to_owned())
+            .expect("Failed to convert to String");
+        */
+
         //check updated word
         let curl_output = Command::new("curl")
             .arg("http://localhost/words/newword")
@@ -100,7 +110,16 @@ fn add_update_delete() {
             page_add_existing
         );
         assert!(page_update.starts_with("HTTP/1.1 204 No Content"));
-        assert!(page_check_updated.starts_with("newword\n7000"));
+
+        /*TODO uncomment after persistence layer added
+        let words = vec!["testworda", "testwordb", "testwordc"];
+        for word in words {
+            assert!(page_all_words.contains(word));
+        }
+        assert!(page_all_words.contains("newword"));
+        */
+
+        assert!(page_check_updated.starts_with("newword<br \\>\n7000"));
         assert!(page_delete.starts_with("HTTP/1.1 204 No Content"));
         assert_eq!(
             "Word \"newword\" is not found \u{1F622}",
