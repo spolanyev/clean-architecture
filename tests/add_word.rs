@@ -6,8 +6,8 @@ use std::time::Duration;
 
 #[test]
 fn add_update_delete() {
-    let mut cargo_run = Command::new("cargo");
-    if let Ok(mut child) = cargo_run.arg("run").spawn() {
+    let mut cargo = Command::new("cargo");
+    if let Ok(mut child) = cargo.arg("run").spawn() {
         thread::sleep(Duration::from_secs(1)); //time to start server
 
         //sure not exist

@@ -6,8 +6,8 @@ use std::time::Duration;
 
 #[test]
 fn get() {
-    let mut cargo_run = Command::new("cargo");
-    if let Ok(mut child) = cargo_run.arg("run").spawn() {
+    let mut cargo = Command::new("cargo");
+    if let Ok(mut child) = cargo.arg("run").spawn() {
         thread::sleep(Duration::from_secs(1)); //time to start server
 
         let curl_output = Command::new("curl")
@@ -34,7 +34,7 @@ fn get() {
 
         child.kill().expect("Failed to stop cargo");
 
-        assert!(found.starts_with("testworda\n1000\nлебедь"));
+        assert!(found.starts_with("testworda<br \\>\n1000<br \\>\nлебедь"));
         assert!(not_found.starts_with("Word \"notexistant\" is not found"));
         assert!(bad_request.starts_with("HTTP/1.1 400 Bad Request"));
     } else {

@@ -1,6 +1,7 @@
 //@author Stanislav Polaniev <spolanyev@gmail.com>
 
 use dictionary::application_business_rules::interfaces::word_unit_interface::WordUnitInterface;
+use dictionary::frameworks_and_drivers::environment::Environment;
 use dictionary::frameworks_and_drivers::factory::Factory;
 use dictionary::frameworks_and_drivers::front_controller::FrontController;
 use dictionary::frameworks_and_drivers::interfaces::dispatcher_interface::DispatcherInterface;
@@ -19,9 +20,13 @@ use dictionary::frameworks_and_drivers::message::router::Router;
 use dictionary::interface_adapters::storage::word_unit::WordUnit;
 use std::net::TcpListener;
 use std::sync::{Arc, Condvar, Mutex};
-use std::thread;
+use std::{env, thread};
 
 fn main() {
+    if env::var("RUST_ENV").is_err() {
+        env::set_var("RUST_ENV", Environment::get_rust_env(".env"));
+    }
+
     let factory: Box<dyn FactoryInterface> = Box::new(Factory::new());
     let dispatcher: Box<dyn DispatcherInterface> = Box::new(Dispatcher::new(factory));
     let word_unit: Box<dyn WordUnitInterface> = Box::new(WordUnit::new());
@@ -76,14 +81,14 @@ fn main() {
                     });
 
                     if let Err(error) = handle.join() {
-                        println!("Thread panicked, error is `{:#?}`", error);
+                        println!("Thread panicked, error is `{error:#?}`");
                     }
 
                     *connections -= 1;
                     semaphore.notify_one();
                 });
             }
-            Err(error) => println!("Connection failed, error is `{:#?}`", error),
+            Err(error) => println!("Connection failed, error is `{error:#?}`"),
         }
     }
 }
